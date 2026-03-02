@@ -9,26 +9,51 @@
 </head>
 <body>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
-        // 고정된 패키지 명 사용
-        const pkgName = "com.onedaysoft.digiband"; 
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+    const pkgName = "com.onedaysoft.digiband"; 
 
-        if (userId) {
-            // AndroidManifest와 정확히 일치해야 함
+    // 모바일 기기 체크
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (userId) {
+        const playStoreUrl = "https://play.google.com/store/apps/details?id=" + pkgName;
+
+        if (isAndroid) {
+            // [안드로이드] OS가 직접 앱 실행 또는 스토어 이동을 제어하는 표준 Intent 방식 (타이머 불필요)
+            const intentUrl = "intent://shareid?id=" + userId + "#Intent;scheme=" + pkgName + ";package=" + pkgName + ";S.browser_fallback_url=" + encodeURIComponent(playStoreUrl) + ";end;";
+            window.location.href = intentUrl;
+
+        } else if (isMobile) {
+            // [기타 모바일(iOS 등)] 앱 스킴 호출 및 타이머 제어
             const appScheme = pkgName + "://shareid?id=" + userId;
-            const playStoreUrl = "https://play.google.com/store/apps/details?id=" + pkgName;
-
-            // 1. 앱 실행 시도
-            window.location.href = appScheme;
-
-            // 2. 앱이 없을 경우 1.5초 후 스토어로 이동
-            setTimeout(function() {
+            
+            // 타이머 변수 저장
+            let fallbackTimer = setTimeout(function() {
                 window.location.href = playStoreUrl;
             }, 1500);
+
+            // 앱이 열려서 브라우저가 숨겨지면(백그라운드) 타이머 취소
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden || document.visibilityState === 'hidden') {
+                    clearTimeout(fallbackTimer);
+                }
+            });
+
+            window.location.href = appScheme;
+
         } else {
-            document.body.innerText = "데이터가 없습니다.";
+            // [PC 접속] 
+            document.getElementById("msg").innerText = "모바일 환경에서 실행해 주세요.";
+            document.getElementById("qr-container").style.display = "block";
+            
+            const currentUrl = encodeURIComponent(window.location.href);
+            document.getElementById("qr-img").src = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + currentUrl;
         }
-    </script>
+    } else {
+        document.getElementById("msg").innerText = "잘못된 접근입니다.";
+    }
+</script>
 </body>
 </html>
