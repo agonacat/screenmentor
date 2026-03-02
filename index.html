@@ -11,21 +11,29 @@
    <script>
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('id');
-        // 고정된 패키지 명 사용
         const pkgName = "com.onedaysoft.digiband"; 
 
         if (userId) {
-            // AndroidManifest와 정확히 일치해야 함
             const appScheme = pkgName + "://shareid?id=" + userId;
             const playStoreUrl = "https://play.google.com/store/apps/details?id=" + pkgName;
+
+            // 타이머 시작 시간 기록
+            const startTime = Date.now();
 
             // 1. 앱 실행 시도
             window.location.href = appScheme;
 
-            // 2. 앱이 없을 경우 1.5초 후 스토어로 이동
+            // 2. 앱이 없을 경우 1.5초 후 스토어로 이동 (시간 체크 방어코드 추가)
             setTimeout(function() {
-                window.location.href = playStoreUrl;
+                const endTime = Date.now();
+                
+                // 설정한 1500ms(1.5초)보다 여유있게 2000ms(2초) 미만으로 흘렀을 때만 스토어 이동.
+                // 시간이 2000ms 이상 지났다면 앱이 켜져서 브라우저가 멈춰있었던 것이므로 이동 취소.
+                if (endTime - startTime < 2000) {
+                    window.location.href = playStoreUrl;
+                }
             }, 1500);
+            
         } else {
             document.body.innerText = "데이터가 없습니다.";
         }
