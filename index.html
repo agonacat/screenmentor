@@ -5,7 +5,7 @@
     <title>Screen Mentor</title>
     <meta property="og:title" content="Screen Mentor">
     <meta property="og:description" content="">
-    <meta property="og:image" content="https://agonacat.github.io/smartdetox/icon.png">
+    <meta property="og:image" content="https://agonacat.github.io/screenmentor/icon.png">
 </head>
 <body>
    <script>
@@ -14,7 +14,7 @@
         const pkgName = "com.onedaysoft.screenmentor"; 
 
         if (userId) {
-            const appScheme = pkgName + "://shareid?id=" + userId;
+            const appScheme = "screenmentor://action?uid=" + userId;
             const playStoreUrl = "https://play.google.com/store/apps/details?id=" + pkgName;
 
             // 타이머 시작 시간 기록
